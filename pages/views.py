@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from .models import Product
+from .utils import ImageLocalStorage
 
 # Create your views here.
 class HomePageView(TemplateView):
@@ -166,4 +167,17 @@ def ImageViewFactory(image_storage):
             request.session['image_url'] = image_url
             return redirect('image_index')
     return ImageView 
+
+
+class ImageViewNoDI(View):
+    template_name = 'images/index.html'
+    def get(self, request):
+            image_url = request.session.get('image_url', '')
+            return render(request, self.template_name, {'image_url': image_url})
+
+    def post(self, request):
+        image_storage = ImageLocalStorage()
+        image_url = image_storage.store(request)
+        request.session['image_url'] = image_url
+        return redirect('image_index')
 
